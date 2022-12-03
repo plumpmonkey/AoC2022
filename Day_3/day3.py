@@ -35,6 +35,7 @@ def part1(data):
 
 
 def part2(data):
+    print("Part 2")
 
     sum_of_badge_priorities = 0
 
@@ -43,16 +44,13 @@ def part2(data):
         # Determine which letter is in all three lines
         for letter in data[i]:
             if letter in data[i+1] and letter in data[i+2]:
-                print(letter)
+                # print(letter)
                 sum_of_badge_priorities += priorities[letter]
 
                 break
 
     # Print the sum of bade priorities
     print(sum_of_badge_priorities)
-
-    print("Part 2")
-
 
     return
 
