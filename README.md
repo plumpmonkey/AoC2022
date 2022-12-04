@@ -5,8 +5,8 @@ Advent of Code 2022 Challenges
 |:-------|:------------------------|:----------------------------------------------------------------|
 | [Day 1](https://adventofcode.com/2022/day/1)  | Calorie Counting        | Read values into a list and find the top 1 and top 3            |
 | [Day 2](https://adventofcode.com/2022/day/2)  | Rock Paper Scissors     | Determine scores based on rules. Used dictionaries              |
-| [Day 3](https://adventofcode.com/2022/day/3)  | Rucksack Reorganisation | Split inpuit and see if duplicates in lists                     |
-| [Day 4](https://adventofcode.com/2022/day/4)  |                         |                                                                 |
+| [Day 3](https://adventofcode.com/2022/day/3)  | Rucksack Reorganisation | Split input and see if duplicates in lists                      |
+| [Day 4](https://adventofcode.com/2022/day/4)  | Camp Cleanup            | Split input and see if ranges overlap                           |
 | [Day 5](https://adventofcode.com/2022/day/5)  |                         |                                                                 |
 | [Day 6](https://adventofcode.com/2022/day/6)  |                         |                                                                 |
 | [Day 7](https://adventofcode.com/2022/day/7)  |                         |                                                                 |
