@@ -9,7 +9,7 @@ Advent of Code 2022 Challenges
 | [Day 4](https://adventofcode.com/2022/day/4)  | Camp Cleanup            | Split input and see if ranges overlap                           |
 | [Day 5](https://adventofcode.com/2022/day/5)  | Supply Stacks           | Processing the input data was tricky. Problem is list pop       |
 | [Day 6](https://adventofcode.com/2022/day/6)  | Tuning Trouble          | Sliding Window and substring check                                                                |
-| [Day 7](https://adventofcode.com/2022/day/7)  |                         |                                                                 |
+| [Day 7](https://adventofcode.com/2022/day/7)  | No Space Left on Device       | Create a tree structure from the input using dictionaries                          |
 | [Day 8](https://adventofcode.com/2022/day/8)  |                         |                                                                 |
 | [Day 9](https://adventofcode.com/2022/day/9)  |                         |                                                                 |
 | [Day 10](https://adventofcode.com/2022/day/10)|                         |                                                                 |
