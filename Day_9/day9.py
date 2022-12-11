@@ -64,40 +64,24 @@ def part1(data):
             head[0] += directions[direction][0]
             head[1] += directions[direction][1]
           
-            # print(f"head: {head}")
-
-            # Update tail position. If it is more than two steps behind the head, move it closer. Diagonal steps are allowed
-            # print(f"Head = {head} - Tail = {tail}\nX: abs(head[0] - tail[0]): {abs(head[0] - tail[0])}, Y: abs(head[1] - tail[1]): {abs(head[1] - tail[1])}")
             
-            if abs(head[0] - tail[0]) + abs(head[1] - tail[1]) == 3:
-                # Diagonal step required as head is now 3 steps away
-                if abs(head[0] - tail[0]) > 1:
-                    # print(f"head[0] - tail[0] = {head[0] - tail[0]}")
+            delta_x = head[0] - tail[0]
+            delta_y = head[1] - tail[1]
 
-                    tail[0] += directions[direction][0]
-                    if head[1] > tail[1]:
-                        tail[1] += 1
-                    else:
-                        tail[1] -= 1
-                    
-                if abs(head[1] - tail[1]) > 1:
-                    # print(f"head[1] - tail[1] = {head[1] - tail[1]}")
-                    if head[1] - tail[1] > 0:
-                        tail[0] += 1
-                    else:
-                        tail[0] -= 1
+            # print(f"delta_x: {delta_x}, delta_y: {delta_y}")
 
-                    
-                    tail[1] += directions[direction][1]
+            if abs(delta_x) > 1 or abs(delta_y) > 1:
+                if delta_x >= 1:
+                    tail[0] += 1
+                elif delta_x <= -1:
+                    tail[0] -= 1
 
-
-            elif abs(head[0] - tail[0]) + abs(head[1] - tail[1]) > 1:
-                # Straight step required as head is now 2 steps away
-                if abs(head[0] - tail[0]) > 1:
-                    tail[0] += directions[direction][0]
-                if abs(head[1] - tail[1]) > 1:
-                    tail[1] += directions[direction][1]
-               
+                if delta_y >= 1:
+                    tail[1] += 1
+                elif delta_y <= -1:
+                    tail[1] -= 1
+                
+           
 
             # print(f"tail: {tail}")
 
