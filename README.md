@@ -13,9 +13,9 @@ Advent of Code 2022 Challenges
 | [Day 8](https://adventofcode.com/2022/day/8)  | Treetop Tree House      | Horrible. Use NP maps, but spent far too long on Part 2         |
 | [Day 9](https://adventofcode.com/2022/day/9)  | Rope Bridge             | A pain to render (not complete), but uses lists and sets to track the position |
 | [Day 10](https://adventofcode.com/2022/day/10)| Cathode-Ray Tube        | Determine value of X based on instructions and print to screen  |
-| [Day 11](https://adventofcode.com/2022/day/11)| Monkey In The Middle    |                                                                 |
-| [Day 12](https://adventofcode.com/2022/day/12)| Hill Climbing Algorithm | Djiska's search with bounding on the neighbour list             |
-| [Day 13](https://adventofcode.com/2022/day/13)|                         |                                                                 |
+| [Day 11](https://adventofcode.com/2022/day/11)| Monkey In The Middle    | INCOMPLETE - Requires modulo, Chinese Remainder theorem or LCD  |
+| [Day 12](https://adventofcode.com/2022/day/12)| Hill Climbing Algorithm | Djiska's search with bounding on the neighbour list. Part 2 brute forced rather than optimising and starting at the end position |
+| [Day 13](https://adventofcode.com/2022/day/13)| Distress Signal         | INCOMPLETE - Requires some strange nested list parsing          |
 | [Day 14](https://adventofcode.com/2022/day/14)|                         |                                                                 |
 | [Day 15](https://adventofcode.com/2022/day/15)|                         |                                                                 |
 | [Day 16](https://adventofcode.com/2022/day/16)|                         |                                                                 |
