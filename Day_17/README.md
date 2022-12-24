@@ -1,4 +1,4 @@
-# [Day X: XXX](https://adventofcode.com/2022/day/X)
+# [Day 17: Pyroclastic Flow](https://adventofcode.com/2022/day/17)
 
 ## Part One
 Your handheld device has located an alternative exit from the cave for you and the elephants. The ground is rumbling almost continuously now, but the strange valves bought you some time. It's definitely getting warmer in here, though.
