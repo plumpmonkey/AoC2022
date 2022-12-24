@@ -2,7 +2,7 @@
 import os
 
 dirname = os.path.dirname(__file__)
-input_file = os.path.join(dirname, 'input.txt')
+input_file = os.path.join(dirname, 'sample.txt')
 
 def part1(data):
     print("Part 1")
