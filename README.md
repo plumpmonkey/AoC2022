@@ -20,10 +20,10 @@ Advent of Code 2022 Challenges
 | [Day 15](https://adventofcode.com/2022/day/15)|                         |                                                                 |
 | [Day 16](https://adventofcode.com/2022/day/16)|                         |                                                                 |
 | [Day 17](https://adventofcode.com/2022/day/17)| Pyroclastic Flow        | INCOMPLETE: Tetris                                              |
-| [Day 18](https://adventofcode.com/2022/day/18)|                         |                                                                 |
+| [Day 18](https://adventofcode.com/2022/day/18)| Boiling Boulders        | INCOMPLETE: A 3d puzzle                                         |
 | [Day 19](https://adventofcode.com/2022/day/19)|                         |                                                                 |
 | [Day 20](https://adventofcode.com/2022/day/20)|                         |                                                                 |
-| [Day 21](https://adventofcode.com/2022/day/21)|                         |                                                                 |
+| [Day 21](https://adventofcode.com/2022/day/21)| Monkey Math             | INCOMPLETE:                                                     |
 | [Day 22](https://adventofcode.com/2022/day/22)|                         |                                                                 |
 | [Day 23](https://adventofcode.com/2022/day/23)|                         |                                                                 |
 | [Day 24](https://adventofcode.com/2022/day/24)|                         |                                                                 |
