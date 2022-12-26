@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import os
-import re
+import sys
 
 dirname = os.path.dirname(__file__)
-input_file = os.path.join(dirname, 'input.txt')
+input_file = os.path.join(dirname, 'sample.txt')
 
 def parse_data(data):
     # Create a dictionary of the data
@@ -69,15 +69,58 @@ def part1(data):
     return
 
 
+def get_monkeyA_and_monkeyB_values(human_value, monkey_dictionary):
+
+    # Set the value of 'humn' to the value passed in
+    monkey_dictionary['humn'] = human_value
+
+    # Calculate the value of the monkeyA and monkeyB
+    monkeyA_value = calculate_monkey_value(monkey_dictionary, monkey_dictionary['root'][0])
+    monkeyB_value = calculate_monkey_value(monkey_dictionary, monkey_dictionary['root'][2])
+
+    print(f"MonkeyA {int(monkeyA_value)} , MonkeyB {int(monkeyB_value)}")
+
+    return monkeyA_value, monkeyB_value
+
 def part2(data):
     print("Part 2")
 
     # Parse the data into a dictionary
     monkey_dictionary = parse_data(data)
 
-    # Change the value of the monkey 'humn' to None
-    monkey_dictionary['humn'] = None
-    
+    iterations = 0
+
+    # Find initial difference between monkeyA and monkeyB
+    monkeyA_value, monkeyB_value = get_monkeyA_and_monkeyB_values(monkey_dictionary['humn'], monkey_dictionary)
+
+    diff = monkeyA_value - monkeyB_value
+    print(f"Initial diff {int(diff)}, monkeyA {int(monkeyA_value)}, monkeyB {int(monkeyB_value)}")
+
+    modifier = 100000000000
+
+    increment = True
+    while True:
+        old_human_value = monkey_dictionary['humn']
+
+        # Increase the human value by the modifier
+        monkey_dictionary['humn'] += int(modifier + 1) if increment else int(-modifier - 1)
+        print(f"Human value {monkey_dictionary['humn']}, modifier {modifier}, increment {increment}")
+
+        monkeyA_value, monkeyB_value = get_monkeyA_and_monkeyB_values(monkey_dictionary['humn'], monkey_dictionary)
+
+        if monkeyA_value == monkeyB_value:
+            print(f"Human value {monkey_dictionary['humn']}")
+            break
+
+        new_diff = monkeyA_value - monkeyB_value
+
+        if abs(new_diff) > abs(diff):
+            increment = not increment
+            modifier /= 4
+        
+        diff = new_diff
+
+        
     return
 
 
