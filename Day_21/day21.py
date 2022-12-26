@@ -3,7 +3,7 @@ import os
 import sys
 
 dirname = os.path.dirname(__file__)
-input_file = os.path.join(dirname, 'sample.txt')
+input_file = os.path.join(dirname, 'input.txt')
 
 def parse_data(data):
     # Create a dictionary of the data
@@ -96,30 +96,37 @@ def part2(data):
     diff = monkeyA_value - monkeyB_value
     print(f"Initial diff {int(diff)}, monkeyA {int(monkeyA_value)}, monkeyB {int(monkeyB_value)}")
 
-    modifier = 100000000000
-
+    low = 0
+    high = sys.maxsize
+    modifier = int(low+high / 2)
+    
     increment = True
     while True:
-        old_human_value = monkey_dictionary['humn']
+        iterations += 1
 
-        # Increase the human value by the modifier
+        # Change the human value by the modifier
         monkey_dictionary['humn'] += int(modifier + 1) if increment else int(-modifier - 1)
         print(f"Human value {monkey_dictionary['humn']}, modifier {modifier}, increment {increment}")
 
         monkeyA_value, monkeyB_value = get_monkeyA_and_monkeyB_values(monkey_dictionary['humn'], monkey_dictionary)
 
+        # We have found the final value, quit
         if monkeyA_value == monkeyB_value:
             print(f"Human value {monkey_dictionary['humn']}")
             break
 
         new_diff = monkeyA_value - monkeyB_value
 
+        # If the new difference is greater than the old difference, we have overshot the target
+        # So reverse the direction and reduce the modifier
         if abs(new_diff) > abs(diff):
             increment = not increment
             modifier /= 4
-        
+                    
         diff = new_diff
 
+    # Solved in iterations
+    print(f"Solved in {iterations} iterations")
         
     return
 
