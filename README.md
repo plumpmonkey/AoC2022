@@ -23,7 +23,7 @@ Advent of Code 2022 Challenges
 | [Day 18](https://adventofcode.com/2022/day/18)| Boiling Boulders        | INCOMPLETE: A 3d puzzle                                         |
 | [Day 19](https://adventofcode.com/2022/day/19)|                         |                                                                 |
 | [Day 20](https://adventofcode.com/2022/day/20)|                         |                                                                 |
-| [Day 21](https://adventofcode.com/2022/day/21)| Monkey Math             | INCOMPLETE:                                                     |
+| [Day 21](https://adventofcode.com/2022/day/21)| Monkey Math             | Recursive algorithm to work out result of nested equation. Part 2 uses a modified binary search to narrow down on the result |
 | [Day 22](https://adventofcode.com/2022/day/22)|                         |                                                                 |
 | [Day 23](https://adventofcode.com/2022/day/23)|                         |                                                                 |
 | [Day 24](https://adventofcode.com/2022/day/24)|                         |                                                                 |
