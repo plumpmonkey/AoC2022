@@ -419,20 +419,26 @@ def main():
         while board.repeat_found == False:
             board.new_shape()
 
+        # We now know that the pattern repeats and how big this pattern is
+        # The height of the repeating pattern to get us near 1 trillion drops
+        # has been calculated and stored in board.height_offset_required
+        #
+        # board.num_remaining_drops is the number of shapes we need to manually
+        # process to get to 1 trillion drops        
+
+        # Disable the find repeat pattern flag
         board.find_repeating_pattern = False
 
+        # Set the number of shapes to drop to the number of remaining drops
         NUM_SHAPES = board.num_remaining_drops
-
-        board.debug = False
-
+  
+        # Manually add in the remaining shapes
         for x in range(NUM_SHAPES):
             board.new_shape()
 
+        # Board height = current board height + the height of the offset
         print(f"Part 2 - Top of board: {board.top + board.height_offset_required}")
 
-
-
-
-    
+   
 if __name__ == "__main__":
     main()
