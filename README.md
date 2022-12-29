@@ -13,14 +13,14 @@ Advent of Code 2022 Challenges
 | [Day 8](https://adventofcode.com/2022/day/8)  | Treetop Tree House      | Horrible. Use NP maps, but spent far too long on Part 2         |
 | [Day 9](https://adventofcode.com/2022/day/9)  | Rope Bridge             | A pain to render (not complete), but uses lists and sets to track the position |
 | [Day 10](https://adventofcode.com/2022/day/10)| Cathode-Ray Tube        | Determine value of X based on instructions and print to screen  |
-| [Day 11](https://adventofcode.com/2022/day/11)| Monkey In The Middle    | INCOMPLETE - Requires modulo, Chinese Remainder theorem or LCD  |
+| [Day 11](https://adventofcode.com/2022/day/11)| Monkey In The Middle    | NOT ATTEMPTED - Requires modulo, Chinese Remainder theorem or LCD  |
 | [Day 12](https://adventofcode.com/2022/day/12)| Hill Climbing Algorithm | Djiska's search with bounding on the neighbour list. Part 2 brute forced rather than optimising and starting at the end position |
-| [Day 13](https://adventofcode.com/2022/day/13)| Distress Signal         | INCOMPLETE - Requires some strange nested list parsing          |
-| [Day 14](https://adventofcode.com/2022/day/14)| Regolith Reservoir      | Modelling rocks and sand falling - used a class for sand, and NP array to model the cave. With visualisation using PyGame |
+| [Day 13](https://adventofcode.com/2022/day/13)| Distress Signal         | NOT ATTEMPTED - Requires some strange nested list parsing          |
+| [Day 14](https://adventofcode.com/2022/day/14)| Regolith Reservoir      | Modelling rocks and sand falling - used a class for sand, and NP array to model the cave. WITH VISUALISATION USING PYGAME |
 | [Day 15](https://adventofcode.com/2022/day/15)|                         |                                                                 |
 | [Day 16](https://adventofcode.com/2022/day/16)|                         |                                                                 |
-| [Day 17](https://adventofcode.com/2022/day/17)| Pyroclastic Flow        | INCOMPLETE: Tetris                                              |
-| [Day 18](https://adventofcode.com/2022/day/18)| Boiling Boulders        | INCOMPLETE: A 3d puzzle                                         |
+| [Day 17](https://adventofcode.com/2022/day/17)| Pyroclastic Flow        | Tetris type puzzle. Determine the height of the tower after 2022 shapes and 1 Trillion shapes. Part 2 required determining a repeating pattern by caching the board state and checking for repeats. Used multiple classes to store shape and board state. WITH ASCII VISUALISATION |
+| [Day 18](https://adventofcode.com/2022/day/18)| Boiling Boulders        | NOT ATTEMPTED: A 3d puzzle                                         |
 | [Day 19](https://adventofcode.com/2022/day/19)|                         |                                                                 |
 | [Day 20](https://adventofcode.com/2022/day/20)|                         |                                                                 |
 | [Day 21](https://adventofcode.com/2022/day/21)| Monkey Math             | Recursive algorithm to work out result of nested equation. Part 2 uses a modified binary search to narrow down on the result |
