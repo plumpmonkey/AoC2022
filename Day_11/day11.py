@@ -89,7 +89,7 @@ class Monkey:
             #   Multiplication
             #
             # So we can use the following formula to get the same result as the original operation
-            # (From my Crypto KI lecture slides where we explore the maths behind RSA encryption)
+            # (From my Crypto PKI lecture slides where we explore the maths behind RSA encryption)
             # 
             #   𝑥∙𝑦(mod⁡𝑛 )=((𝑥(mod⁡𝑛 ))∙(𝑦(mod⁡𝑛 )))(mod⁡𝑛 )
             #   (𝑥+𝑦)(mod⁡𝑛 )=((𝑥(mod⁡𝑛 ))+(𝑦(mod⁡𝑛 )))(mod⁡𝑛 )
@@ -251,7 +251,7 @@ def part2(data):
     # Find the least common multiple of all of the monkeys divisor values (See the inspect function for more details)
     lcm = math.lcm(*[monkey.divisible_value for monkey in monkey_dict.values()])
 
-    # run for 20 rounds
+    # run for 10000 rounds
     for i in range(10000):
         print(f"Round {i+1}")
         for monkey in monkey_dict.values():
