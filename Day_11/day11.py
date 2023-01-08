@@ -2,9 +2,9 @@
 import os
 from tqdm import tqdm
 from enum import Enum
-from collections import Counter
+import math
 
-DEBUG = True
+DEBUG = False
 
 dirname = os.path.dirname(__file__)
 input_file = os.path.join(dirname, 'input.txt')
@@ -42,7 +42,7 @@ class Monkey:
         return  f"Monkey ID: {self.monkey_id}, Items: {self.items_list}, Operator: {self.operator}, Divisible Value: {self.divisible_value}, Throw True: {self.true_monkey}, Throw False: {self.false_monkey}"
 
 
-    def inspect(self, monkey_dict: dict):
+    def inspect(self, monkey_dict: dict, part=1, lcm=0):
 
         # Pop the first item off the list
         item = int(self.items_list.pop(0))
@@ -77,8 +77,45 @@ class Monkey:
         if DEBUG:
             print(f"Monkey {self.monkey_id} has inspected item {original_worry_level}, performing operation {lhs_operator} {rhs_operator} and it is now {item}")
 
-        # The item has now been inspected. The monkey gets bored so divide by 3 and floor the result
-        item = int(item) // 3
+        # For Part 1 and Part 2 inspection we need to treat the worry value differently
+        if part == 1:
+            # The item has now been inspected. The monkey gets bored so divide by 3 and floor the result
+            item = int(item) // 3
+        else:
+            # For part 2, the numbers get very large very quickly. We can use some crypto math here.
+            # 
+            # Modulo congruence is preserved for for the following operations:
+            #   Addition
+            #   Multiplication
+            #
+            # So we can use the following formula to get the same result as the original operation
+            # (From my Crypto KI lecture slides where we explore the maths behind RSA encryption)
+            # 
+            #   𝑥∙𝑦(mod⁡𝑛 )=((𝑥(mod⁡𝑛 ))∙(𝑦(mod⁡𝑛 )))(mod⁡𝑛 )
+            #   (𝑥+𝑦)(mod⁡𝑛 )=((𝑥(mod⁡𝑛 ))+(𝑦(mod⁡𝑛 )))(mod⁡𝑛 )
+            #
+            # EG. 
+            # For any positive integers 𝑎, 𝑏 and 𝑛:
+            # 𝑎 ≡𝑏(mod 𝑛) means a and b are equivalent modulo 𝑛, i.e. they give the same remainder when divided by 𝑛
+            # 𝑎 ≡𝑏(mod 𝑛) ⇔ There is a positive integer 𝑘 such that 𝑎=𝑏+𝑘•𝑛
+            # Example: 25≡3 (𝑚𝑜𝑑 11) since 25=3+2•11, i.e. 𝑘=2
+            # Example2: 12≡2 (mod 5) since 12=2+2•5, i.e. 𝑘=2
+            # 
+            # So as we only care if the worry level is divisible by the divisible value, 
+            # we can use a module operation to get the same result as the original operation
+            # by preserving the remainder for all of the monkeys.
+            # 
+            # The trick is to find a common value for all of the monkeys. This would be the "Least Common Multiplier" (LCM)
+            # of all of the monkeys. This is the smallest number that is divisible by all of the monkeys.
+            # 
+            # For example, if we have 3 monkeys with worry levels of 5, 7 and 9, then the LCM is 315
+            # 
+            # As all our monkey divisor values are prime, then the LCM is the product of all of the monkeys divisor values
+            # (or we can use the Python 3.9 math.lcm() function)
+            #
+            item = item % lcm
+
+            pass
 
         if DEBUG:
             print(f"Monkey {self.monkey_id} is bored so divides the worry level by 3 and it is now {item}")
@@ -180,32 +217,66 @@ def part1(data):
             while monkey.items_list:
                 monkey.inspect(monkey_dict)
 
-        # show the monkey items
-        if DEBUG:
-            print(f"\nAt the end of round {i+1}")
-            
-            for monkey in monkey_dict.values():
-                print(f"Monkey {monkey.monkey_id} has {(monkey.items_list)} items")
-
-            print()
-
-        # Show the monkey inspection counts
-        inspections = []
+    # show the monkey items
+    if DEBUG:
+        print(f"\nAt the end of round {i+1}")
+        
         for monkey in monkey_dict.values():
-            inspections.append(monkey.inspected_count)
-            print(f"Monkey {monkey.monkey_id} has inspected {monkey.inspected_count} items")
+            print(f"Monkey {monkey.monkey_id} has {(monkey.items_list)} items")
 
-        # Sort the inspections list
-        inspections.sort()
+        print()
 
-        # Multiply the last two (highest) values  in the list
-        print(f"Multiplying the last two values in the list: {inspections[-1]} * {inspections[-2]} = {inspections[-1] * inspections[-2]}")
+    # Show the monkey inspection counts
+    inspections = []
+    for monkey in monkey_dict.values():
+        inspections.append(monkey.inspected_count)
+        print(f"Monkey {monkey.monkey_id} has inspected {monkey.inspected_count} items")
+
+    # Sort the inspections list
+    inspections.sort()
+
+    # Multiply the last two (highest) values  in the list
+    print(f"Multiplying the last two values in the list: {inspections[-1]} * {inspections[-2]} = {inspections[-1] * inspections[-2]}")
 
     return 
 
 
 def part2(data):
     print("Part 2")
+
+    monkey_dict = create_monkeys(data)
+
+    print(monkey_dict)
+
+    # Find the least common multiple of all of the monkeys divisor values (See the inspect function for more details)
+    lcm = math.lcm(*[monkey.divisible_value for monkey in monkey_dict.values()])
+
+    # run for 20 rounds
+    for i in range(10000):
+        print(f"Round {i+1}")
+        for monkey in monkey_dict.values():
+            while monkey.items_list:
+                monkey.inspect(monkey_dict, part=2, lcm=lcm)
+
+    print(f"\nAt the end of round {i+1}")
+    
+    for monkey in monkey_dict.values():
+        print(f"Monkey {monkey.monkey_id} has {(monkey.items_list)} items")
+
+    print()
+
+    # Show the monkey inspection counts
+    inspections = []
+    for monkey in monkey_dict.values():
+        inspections.append(monkey.inspected_count)
+        print(f"Monkey {monkey.monkey_id} has inspected {monkey.inspected_count} items")
+
+    # Sort the inspections list
+    inspections.sort()
+
+    # Multiply the last two (highest) values  in the list
+    print(f"Multiplying the last two values in the list: {inspections[-1]} * {inspections[-2]} = {inspections[-1] * inspections[-2]}")
+
 
     return
 

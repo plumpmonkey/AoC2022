@@ -13,7 +13,7 @@ Advent of Code 2022 Challenges
 | [Day 8](https://adventofcode.com/2022/day/8)  | Treetop Tree House      | Horrible. Use NP maps, but spent far too long on Part 2         |
 | [Day 9](https://adventofcode.com/2022/day/9)  | Rope Bridge             | A pain to render (not complete), but uses lists and sets to track the position |
 | [Day 10](https://adventofcode.com/2022/day/10)| Cathode-Ray Tube        | Determine value of X based on instructions and print to screen  |
-| [Day 11](https://adventofcode.com/2022/day/11)| Monkey In The Middle    | Requires modulo, Chinese Remainder theorem or LCD  |
+| [Day 11](https://adventofcode.com/2022/day/11)| Monkey In The Middle    | Part 2 used massive numbers, used some RSA crypto math for modulo congruence so that for addition and multiplication operations we only care about the remainder. We can work out the correct value for the mod value by using the LCM. See code for full details  |
 | [Day 12](https://adventofcode.com/2022/day/12)| Hill Climbing Algorithm | Djiska's search with bounding on the neighbour list. Part 2 brute forced rather than optimising and starting at the end position |
 | [Day 13](https://adventofcode.com/2022/day/13)| Distress Signal         | NOT ATTEMPTED - Requires some strange nested list parsing          |
 | [Day 14](https://adventofcode.com/2022/day/14)| Regolith Reservoir      | Modelling rocks and sand falling - used a class for sand, and NP array to model the cave. WITH VISUALISATION USING PYGAME |
