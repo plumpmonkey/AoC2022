@@ -5,10 +5,11 @@ from enum import Enum
 import re
 
 dirname = os.path.dirname(__file__)
-filename = "sample.txt"
+# Change filename to input.txt for the real input or sample.txt for the sample input
+filename = "input.txt"
 input_file = os.path.join(dirname, filename)
 
-DEBUG = True
+DEBUG = False
 
 # Define the colours used for text printing
 class Colours(Enum):
@@ -249,8 +250,86 @@ class CubeMap(Map):
 
         return self.__face_transitions[(face, direction)]
 
-    def get_next_face_point(self):
-        pass
+    def get_next_face_point(self, face, face_point):
+        # We have moved off the current face
+        # Convert our current face position to a map position
+        current_map_position = self.convert_face_point_to_map_point(face, face_point)
+        # We then need to work out which face we are moving to
+        # 
+        # Use the current face and direction to get the new face and direction
+        new_face, new_direction = self.face_transitions[(face, self.direction)]
+
+        if DEBUG:
+            print(f"{Colours.BLUE.value}Moving from current map position {current_map_position} face {face} to face {new_face} in direction {new_direction}{Colours.NORMAL.value}")
+            
+        # Determine the current direction so we know which direction to save
+        if self.direction == 'v':
+            if new_direction == 'v':
+                # We  were moving down and are still moving down
+                new_face_point = Point(face_point.x, 0)
+            elif new_direction == '^':
+                # We were moving down and are now moving up
+                new_face_point = Point(self.__face_width - 1 - face_point.x, self.__face_height - 1)
+            elif new_direction == '<':
+                # We were moving down and are now moving left
+                new_face_point = Point(self.__face_width - 1, face_point.x)
+            elif new_direction == '>':
+                # We were moving down and are now moving right
+                new_face_point = Point(self.__face_height - 1 - face_point.x, 0)
+        elif self.direction == '^':
+            if new_direction == 'v':
+                # We  were moving up and are now moving down
+                new_face_point = Point(self.__face_width - 1 - face_point.x, 0)
+            elif new_direction == '^':
+                # We were moving up and are still moving up
+                new_face_point = Point(face_point.x, self.__face_height - 1)   
+            elif new_direction == '<':
+                new_face_point = Point(self.__face_width - 1, self.__face_height - 1 - face_point.x)
+            elif new_direction == '>':
+                new_face_point = Point(0, face_point.x)
+        elif self.direction == '<':
+            if new_direction == 'v':
+                new_face_point = Point(face_point.y, 0)
+            elif new_direction == '^':
+                new_face_point = Point(self.__face_width - 1 - face_point.y, self.__face_height - 1)
+            elif new_direction == '<':
+                new_face_point = Point(self.__face_width - 1, face_point.y)
+            elif new_direction == '>':
+                new_face_point = Point(0, self.__face_height - 1 - face_point.y)    
+        elif self.direction == '>':
+            if new_direction == 'v':
+                new_face_point = Point(self.__face_width - 1 - face_point.y, 0)
+            elif new_direction == '^':
+                new_face_point = Point(face_point.y, self.__face_height - 1)
+            elif new_direction == '<':
+                new_face_point = Point(self.__face_width - 1, self.__face_height - 1 - face_point.y)
+            elif new_direction == '>':
+                new_face_point = Point(0, face_point.y)
+
+
+        # Convert the new face point to a map point
+        candidate_map_position = self.convert_face_point_to_map_point(new_face , new_face_point)
+
+        if DEBUG:
+            print(f"{Colours.BLUE.value}Old face point {face_point} face point: {new_face_point}{Colours.NORMAL.value}")
+            print(f"candidate_map_position: {candidate_map_position} - contents: {self.map_grid[candidate_map_position.y][candidate_map_position.x]}")
+
+        if self.map_grid[candidate_map_position.y][candidate_map_position.x] == '#':
+            # new position is a wall. Return false
+            return False
+        else:
+            # new position is not a wall.
+            # Update the new position set the new direction and return true
+            if DEBUG:
+                print(f"Setting new direction to {new_direction} and new position to {candidate_map_position}")
+
+            self.direction = new_direction
+            self.current_position = candidate_map_position
+            self.path_points[self.current_position] = self.direction
+
+            
+            return True
+
 
 def part1(flat_map_data, instructions):
     print("Part 1")
@@ -386,7 +465,7 @@ def part2(cube_map_data, instructions):
     # (1, 'v') -> (4, 'v')
     # (1, '<') -> (3, 'v')
     
-    sample_data_cube_geometry = [(2,0), (0,1), (1,1), (1,2), (2,2), (3,2)]
+    sample_data_cube_geometry = [(2,0), (0,1), (1,1), (2,1), (2,2), (3,2)]
 
     sample_data_face_transition = {
         (1, '^'): (2, 'v'),
@@ -407,8 +486,8 @@ def part2(cube_map_data, instructions):
         (4, '<'): (3, '<'),
         (5, '^'): (4, '^'),
         (5, '>'): (6, '>'),
-        (5, 'v'): (4, 'v'),
-        (5, '<'): (2, '^'),
+        (5, 'v'): (2, '^'),
+        (5, '<'): (3, '^'),
         (6, '^'): (4, '<'),
         (6, '>'): (1, '<'),
         (6, 'v'): (2, '>'),
@@ -417,41 +496,49 @@ def part2(cube_map_data, instructions):
 
     real_data_cube_geometry = [(1,0), (2,0), (1,1), (0,2), (1,2), (0,3)]
 
-    # TODO - THIS IS WRONG
     real_data_face_transition = {
-        (1, '^'): (2, 'v'),
-        (1, '>'): (6, '<'),
-        (1, 'v'): (4, 'v'),
-        (1, '<'): (3, 'v'),
-        (2, '^'): (1, 'v'),
-        (2, '>'): (3, '>'),
-        (2, 'v'): (5, '^'),
-        (2, '<'): (6, '^'),
-        (3, '^'): (1, '>'),
-        (3, '>'): (4, '>'),
-        (3, 'v'): (5, '>'),
-        (3, '<'): (2, '<'),
-        (4, '^'): (1, '^'),
-        (4, '>'): (6, 'v'),
-        (4, 'v'): (5, 'v'),
-        (4, '<'): (3, '<'),
-        (5, '^'): (4, '^'),
-        (5, '>'): (6, '>'),
-        (5, 'v'): (4, 'v'),
-        (5, '<'): (2, '^'),
-        (6, '^'): (4, '<'),
-        (6, '>'): (1, '<'),
-        (6, 'v'): (2, '>'),
-        (6, '<'): (5, '<'),
+        (1, '^'): (6, '>'),
+        (1, '>'): (2, '>'),
+        (1, 'v'): (3, 'v'),
+        (1, '<'): (4, '>'),
+        (2, '^'): (6, '^'),
+        (2, '>'): (5, '<'),
+        (2, 'v'): (3, '<'),
+        (2, '<'): (1, '<'),
+        (3, '^'): (1, '^'),
+        (3, '>'): (2, '^'),
+        (3, 'v'): (5, 'v'),
+        (3, '<'): (4, 'v'),
+        (4, '^'): (3, '>'),
+        (4, '>'): (5, '>'),
+        (4, 'v'): (6, 'v'),
+        (4, '<'): (1, '>'),
+        (5, '^'): (3, '^'),
+        (5, '>'): (2, '<'),
+        (5, 'v'): (6, '<'),
+        (5, '<'): (4, '<'),
+        (6, '^'): (4, '^'),
+        (6, '>'): (5, '^'),
+        (6, 'v'): (2, 'v'),
+        (6, '<'): (1, 'v'),
     }
-    cube_map = CubeMap(cube_map_data, sample_data_cube_geometry, sample_data_face_transition)
+
+    if filename == 'sample.txt':
+        cube_map = CubeMap(cube_map_data, sample_data_cube_geometry, sample_data_face_transition)
+    else:
+        cube_map = CubeMap(cube_map_data, real_data_cube_geometry, real_data_face_transition)
 
     # Test functions
     #
     # cube_map.get_face_for_location(Point(5,5))
     # cube_map.get_point_on_face(Point(5,5))
-    # cube_map.convert_face_point_to_map_point(6, Point(3,3))
-
+    # print(cube_map.convert_face_point_to_map_point(1, Point(0,0)))
+    # print(cube_map.convert_face_point_to_map_point(2, Point(0,0)))
+    # print(cube_map.convert_face_point_to_map_point(3, Point(0,0)))
+    # print(cube_map.convert_face_point_to_map_point(4, Point(0,0)))
+    # print(cube_map.convert_face_point_to_map_point(5, Point(0,0)))
+    # print(cube_map.convert_face_point_to_map_point(6, Point(0,0)))
+    
     # Loop through the instructions and print them out
     for i in range(0, len(instructions.instruction_list)):
 
@@ -487,7 +574,9 @@ def part2(cube_map_data, instructions):
                     # Check we havent hit a wall. Convert the candidate position to a map position
                     candidate_map_position = cube_map.convert_face_point_to_map_point(face_number, face_candidate_position)
 
-                    print(f"candidate_map_position: {candidate_map_position} - contents: {cube_map.map_grid[candidate_map_position.y][candidate_map_position.x]}")
+                    if DEBUG:
+                        print(f"candidate_map_position: {candidate_map_position} - contents: {cube_map.map_grid[candidate_map_position.y][candidate_map_position.x]}")
+                    
                     if cube_map.map_grid[candidate_map_position.y][candidate_map_position.x] == '#':
                         # We have hit a wall
                         if DEBUG:
@@ -501,17 +590,19 @@ def part2(cube_map_data, instructions):
                         cube_map.path_points[cube_map.current_position] = cube_map.direction
                 else:
                     # We have moved off the current face
-                    # Convert our current face position to a map position
-                    current_map_position = cube_map.convert_face_point_to_map_point(face_number, face_point)
-
-                    # We then need to work out which face we are moving to
-                    # 
-                    # Use the current face and direction to get the new face and direction
-                    new_face, new_direction = cube_map.face_transitions[(face_number, cube_map.direction)]
-
-                    print(f"Moving from face {face_number} to face {new_face} in direction {new_direction}")
-
-                pass
+                    # Pass the current face number and the current face point to get the next face number and point
+                    # The function will determine the the transition point and the next face number
+                    # and will return false if the transition point is invalid (Eg, there is a wall in the way)
+                    # If it returns True, then the current position will be updated to the new face point
+                    if cube_map.get_next_face_point(face_number, face_point):
+                        # We have moved to a new face
+                        if DEBUG:
+                            print(f"{Colours.BOLD.value}{Colours.RED.value}Moved to a new face{Colours.NORMAL.value}")
+                    else: 
+                        # We have hit a wall
+                        if DEBUG:
+                            print(f"{Colours.BOLD.value}{Colours.RED.value}Hit a wall on the new face{Colours.NORMAL.value}")
+                        break
         else:
             if DEBUG:
                 print(f"{Colours.BOLD.value}{Colours.GREEN.value}Instruction {i}: {inst}{Colours.NORMAL.value}")
@@ -524,6 +615,8 @@ def part2(cube_map_data, instructions):
                 cube_map.direction = Direction[(return_direction_value(cube_map.direction) - 1) % 4]  
 
     print(cube_map)
+    print(f"Final score: {cube_map.score()}")       
+
 
     return
 
