@@ -5,10 +5,10 @@ from enum import Enum
 import re
 
 dirname = os.path.dirname(__file__)
-input_file = os.path.join(dirname, 'input.txt')
+filename = "sample.txt"
+input_file = os.path.join(dirname, filename)
 
-DEBUG = False
-VISUALISE = True
+DEBUG = True
 
 # Define the colours used for text printing
 class Colours(Enum):
@@ -171,6 +171,87 @@ class Map:
         return "\n".join(lines)
 
 
+class CubeMap(Map):
+    def __init__(self, map_data, cube_geometry, face_transitions):
+        super().__init__(map_data)
+
+        # Store the cube geometry and face transitions data
+        self.__cube_geometry = cube_geometry
+        print(self.__cube_geometry)
+        self.face_transitions = face_transitions
+
+        # Determine how many faces wide our map is (Its different for sample data and real data)
+        self.__map_faces_wide = max(x for x,y in self.__cube_geometry) + 1
+
+        print(f"Map is {self.__map_faces_wide} faces wide")
+
+        # Determine how many faces high our map is (Its different for sample data and real data)
+        self.__map_faces_high = max(y for x,y in self.__cube_geometry) + 1
+
+        print(f"Map is {self.__map_faces_high} faces high")
+
+        # Determine the width of each face
+        self.__face_width = self.width // self.__map_faces_wide
+
+        # Determine the height of each face
+        self.__face_height = self.height // self.__map_faces_high
+
+        print(f"Face width: {self.__face_width}, Face height: {self.__face_height}")
+
+
+    def get_face_for_location(self, location):
+        # Get the face for the given location (actual face value, not the index)
+        # 
+        # Dividing the current real map location by a face width and height will
+        # give us the index of the face in the cube geometry list
+        # We can map that to an actual face 
+
+        face_x = location.x // self.__face_width
+        face_y = location.y // self.__face_height
+
+        # Get the face index from the cube geometry list
+        face_value = self.__cube_geometry.index((face_x, face_y)) + 1
+
+        return face_value
+
+    def get_point_on_face(self,location):
+        # Take the real map location and convert it to a point on the face
+       
+        face_x = location.x % self.__face_width
+        face_y = location.y % self.__face_height
+
+        return Point(face_x, face_y)
+
+
+    def convert_face_point_to_map_point(self, face, point):
+        # Convert a point on a face to a point on the real map
+
+        # Get the face index from the cube geometry list
+        face_location = (self.__cube_geometry[face - 1])
+
+        # Get the real map location of the face
+        map_x = face_location[0] * self.__face_width + point.x
+        map_y = face_location[1] * self.__face_height + point.y
+
+        return Point(map_x, map_y)
+
+    def is_valid_face_position(self, face_point):
+        if(face_point.x < 0 or face_point.y < 0 or face_point.x >= self.__face_width or face_point.y >= self.__face_height):
+            return False
+        else:
+            return True
+
+    def get_face_transition(self, face, direction):
+        # Get the face transition for the given face and direction
+        # 
+        # The face transitions are stored as a dictionary with the key being
+        # the face and direction, and the value being the face to transition to
+
+        return self.__face_transitions[(face, direction)]
+
+    def get_next_face_point(self):
+        pass
+
 def part1(flat_map_data, instructions):
     print("Part 1")
 
@@ -228,8 +309,6 @@ def part1(flat_map_data, instructions):
                         elif flat_map_data.direction == 'v':
                             candidate_position = Point(candidate_position.x, candidate_position.y + 1)
 
-
-
                 # If the new candiate position is a wall (#) we do not update the current position and break
                 # out of the loop. If its a ".", we update the current position
                 if flat_map_data.map_grid[candidate_position.y][candidate_position.x] == '#':
@@ -262,8 +341,189 @@ def part1(flat_map_data, instructions):
     return 
 
 
-def part2(data):
+def part2(cube_map_data, instructions):
     print("Part 2")
+
+    # Part 2 turns the map into a cube
+    # The sample cube has a different geometry to the real input data, so we need a way
+    # to represent the cube face positions in the input data and how the faces map to
+    # each other so we can dynamically work out the transition from face to face.
+
+    # The sample cube is defined as:
+    #         1111
+    #         1111
+    #         1111
+    #         1111
+    # 222233334444
+    # 222233334444
+    # 222233334444
+    # 222233334444
+    #         55556666
+    #         55556666
+    #         55556666
+    #         55556666
+    # 
+    # On a grid system we can represent this as:
+    #
+    #     0   1   2   3
+    #   |---|---|---|---|
+    # 0 |   |   | 1 |   |
+    #   |---|---|---|---|
+    # 1 | 2 | 3 | 4 |   |
+    #   |---|---|---|---|
+    # 2 |   |   | 5 | 6 |
+    #   |---|---|---|---|
+    #
+    # So face 1 is at (2, 0) and face 2 is at (0, 1), face 3 is at (1, 1) and so on.
+    #
+    # We can also define the transition between faces. This needs to be done in a (face, direction) tuple
+    # mapping to a (face, new_direction) tuple. For example, if we are on face 1 and move move up, 
+    # we move to face 2 moving down. If we are on face 2 and move left, we move to face 6 moving up. 
+    # 
+    # The transition mapping is:
+    # (1, '^') -> (2, 'v')
+    # (1, '>') -> (6, '<')
+    # (1, 'v') -> (4, 'v')
+    # (1, '<') -> (3, 'v')
+    
+    sample_data_cube_geometry = [(2,0), (0,1), (1,1), (1,2), (2,2), (3,2)]
+
+    sample_data_face_transition = {
+        (1, '^'): (2, 'v'),
+        (1, '>'): (6, '<'),
+        (1, 'v'): (4, 'v'),
+        (1, '<'): (3, 'v'),
+        (2, '^'): (1, 'v'),
+        (2, '>'): (3, '>'),
+        (2, 'v'): (5, '^'),
+        (2, '<'): (6, '^'),
+        (3, '^'): (1, '>'),
+        (3, '>'): (4, '>'),
+        (3, 'v'): (5, '>'),
+        (3, '<'): (2, '<'),
+        (4, '^'): (1, '^'),
+        (4, '>'): (6, 'v'),
+        (4, 'v'): (5, 'v'),
+        (4, '<'): (3, '<'),
+        (5, '^'): (4, '^'),
+        (5, '>'): (6, '>'),
+        (5, 'v'): (4, 'v'),
+        (5, '<'): (2, '^'),
+        (6, '^'): (4, '<'),
+        (6, '>'): (1, '<'),
+        (6, 'v'): (2, '>'),
+        (6, '<'): (5, '<'),
+    }
+
+    real_data_cube_geometry = [(1,0), (2,0), (1,1), (0,2), (1,2), (0,3)]
+
+    # TODO - THIS IS WRONG
+    real_data_face_transition = {
+        (1, '^'): (2, 'v'),
+        (1, '>'): (6, '<'),
+        (1, 'v'): (4, 'v'),
+        (1, '<'): (3, 'v'),
+        (2, '^'): (1, 'v'),
+        (2, '>'): (3, '>'),
+        (2, 'v'): (5, '^'),
+        (2, '<'): (6, '^'),
+        (3, '^'): (1, '>'),
+        (3, '>'): (4, '>'),
+        (3, 'v'): (5, '>'),
+        (3, '<'): (2, '<'),
+        (4, '^'): (1, '^'),
+        (4, '>'): (6, 'v'),
+        (4, 'v'): (5, 'v'),
+        (4, '<'): (3, '<'),
+        (5, '^'): (4, '^'),
+        (5, '>'): (6, '>'),
+        (5, 'v'): (4, 'v'),
+        (5, '<'): (2, '^'),
+        (6, '^'): (4, '<'),
+        (6, '>'): (1, '<'),
+        (6, 'v'): (2, '>'),
+        (6, '<'): (5, '<'),
+    }
+    cube_map = CubeMap(cube_map_data, sample_data_cube_geometry, sample_data_face_transition)
+
+    # Test functions
+    #
+    # cube_map.get_face_for_location(Point(5,5))
+    # cube_map.get_point_on_face(Point(5,5))
+    # cube_map.convert_face_point_to_map_point(6, Point(3,3))
+
+    # Loop through the instructions and print them out
+    for i in range(0, len(instructions.instruction_list)):
+
+        inst = instructions.next_instruction()
+
+        if DEBUG:
+            # Convert the current position to a position on the face
+            face_point = cube_map.get_point_on_face(cube_map.current_position)
+
+            # Get the current face number
+            face_number = cube_map.get_face_for_location(cube_map.current_position)
+
+            print(f"\n{Colours.MAGENTA.value}Current Direction: {cube_map.direction}, current map position: {cube_map.current_position}, Face {face_number}, face_position{face_point}{Colours.NORMAL.value}")
+
+        if inst.isdigit():
+            if DEBUG:
+                print(f"{Colours.BOLD.value}{Colours.RED.value}Instruction {i}: {inst}{Colours.NORMAL.value}")
+
+            # Loop for the required number of steps
+            for j in range(0, int(inst)):
+                # Convert the current position to a position on the face
+                face_point = cube_map.get_point_on_face(cube_map.current_position)
+
+                # Get the current face number
+                face_number = cube_map.get_face_for_location(cube_map.current_position)
+
+                # Get a candidate position on the face for the next move
+                face_candidate_position = face_point + MOVE[cube_map.direction]
+
+                # Validate the candidate position is still on this face
+                if cube_map.is_valid_face_position(face_candidate_position):
+                    # We are still on the same face
+                    # Check we havent hit a wall. Convert the candidate position to a map position
+                    candidate_map_position = cube_map.convert_face_point_to_map_point(face_number, face_candidate_position)
+
+                    print(f"candidate_map_position: {candidate_map_position} - contents: {cube_map.map_grid[candidate_map_position.y][candidate_map_position.x]}")
+                    if cube_map.map_grid[candidate_map_position.y][candidate_map_position.x] == '#':
+                        # We have hit a wall
+                        if DEBUG:
+                            print(f"{Colours.BOLD.value}{Colours.RED.value}Hit a wall at {candidate_map_position}{Colours.NORMAL.value}")
+                        break
+                    else:
+                        # Convert the candidate position to a map position
+                        cube_map.current_position = cube_map.convert_face_point_to_map_point(face_number, face_candidate_position)
+
+                        # Store the current position in the path
+                        cube_map.path_points[cube_map.current_position] = cube_map.direction
+                else:
+                    # We have moved off the current face
+                    # Convert our current face position to a map position
+                    current_map_position = cube_map.convert_face_point_to_map_point(face_number, face_point)
+
+                    # We then need to work out which face we are moving to
+                    # 
+                    # Use the current face and direction to get the new face and direction
+                    new_face, new_direction = cube_map.face_transitions[(face_number, cube_map.direction)]
+
+                    print(f"Moving from face {face_number} to face {new_face} in direction {new_direction}")
+
+                pass
+        else:
+            if DEBUG:
+                print(f"{Colours.BOLD.value}{Colours.GREEN.value}Instruction {i}: {inst}{Colours.NORMAL.value}")
+
+            # Turn the direction
+            if inst == 'R':
+                # Add or subtract 1 from the direction value, then mod 4 to wrap around the list                
+                cube_map.direction = Direction[(return_direction_value(cube_map.direction) + 1) % 4]
+            else:
+                cube_map.direction = Direction[(return_direction_value(cube_map.direction) - 1) % 4]  
+
+    print(cube_map)
 
     return
 
@@ -287,7 +547,10 @@ def main():
         # Instantiate the instructions class
         instructions = Instructions(instructions)
 
-        part1(flat_map_instance, instructions)
+        # part1(flat_map_instance, instructions)
+
+        part2(map_data, instructions)
+
             
 
 if __name__ == "__main__":
