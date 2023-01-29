@@ -7,6 +7,9 @@ import re
 dirname = os.path.dirname(__file__)
 input_file = os.path.join(dirname, 'input.txt')
 
+DEBUG = False
+VISUALISE = True
+
 # Define the colours used for text printing
 class Colours(Enum):
     RED = "\033[31m"
@@ -21,7 +24,7 @@ class Colours(Enum):
 
 # Similar to Day 17. define a point class and use vectors. We can
 # add vector coordinates.
-@dataclass(frozen=False)
+@dataclass(frozen=True)
 class Point:
     # Define the x,y coordinates that make a point
     x: int
@@ -105,6 +108,9 @@ class Map:
 
         # Generate a list of the columns in the map        
         self.column_list = self.__generate_column_list()
+
+        # Store the list of points we passed through and direction       
+        self.path_points = {self.current_position : self.direction}
         
         print(f"Map Initialised to size: {self.width} x {self.height}, start position: {self.start_position}")
         
@@ -127,10 +133,132 @@ class Map:
         return ["".join(str(char) for char in column) for column in columnlist]
 
 
+    def score(self):
+        # print the final position, which is +1 on the x and y coordinates
+        final_position = self.current_position + Point(1, 1)
+        print(f"Final position: {final_position}")
 
-def part1(data):
+        # Final score is row * 1000 + column * 4
+        final_score = final_position.y * 1000 + final_position.x * 4
+
+        # add a direction value to the final score. 0 = >, 1 = v, 2 = <, 3 = ^
+        final_score += return_direction_value(self.direction)
+
+        return final_score
+
+    def __str__(self) -> str:
+        # Print the map
+        # Create a list of printable lines in the map
+        lines = []
+
+        for y in range(0, self.height):
+            line = ""
+            for x in range(0, self.width):
+                grid_point = Point(x, y)
+
+                # Check if the current position is the start position
+                if self.start_position.x == x and self.start_position.y == y:
+                    line += (Colours.GREEN.value) + ">" + (Colours.NORMAL.value)
+                elif self.current_position.x == x and self.current_position.y == y:
+                    line += (Colours.RED.value) + self.direction + (Colours.NORMAL.value)
+                elif grid_point in self.path_points:
+                    line += (Colours.BLUE.value) + self.path_points[grid_point] + (Colours.NORMAL.value)
+                else:
+                    line += self.map_grid[y][x]
+
+            lines.append(line)
+
+        return "\n".join(lines)
+
+
+def part1(flat_map_data, instructions):
     print("Part 1")
 
+    # Loop through the instructions and print them out
+    for i in range(0, len(instructions.instruction_list)):
+
+        inst = instructions.next_instruction()
+
+        if DEBUG:
+            print(f"\n{Colours.MAGENTA.value}Current Direction: {flat_map_data.direction}, current position: {flat_map_data.current_position}{Colours.NORMAL.value}")
+
+        if inst.isdigit():
+            if DEBUG:
+                print(f"{Colours.BOLD.value}{Colours.RED.value}Instruction {i}: {inst}{Colours.NORMAL.value}")
+
+            for j in range(0, int(inst)):
+                # Find the next candidate position
+                candidate_position = flat_map_data.current_position + MOVE[flat_map_data.direction]
+
+                # Check if we are off the map
+                if candidate_position.x >= flat_map_data.width:
+                    candidate_position = Point(0, candidate_position.y)
+                elif candidate_position.x < 0:
+                    candidate_position  = Point(flat_map_data.width - 1, candidate_position.y)
+                elif candidate_position.y >= flat_map_data.height:
+                    candidate_position = Point(candidate_position.x, 0)
+                elif candidate_position.y < 0:
+                    candidate_position = Point(candidate_position.x, flat_map_data.height - 1)
+                    
+                # Check if the candidate position is a space
+                if flat_map_data.map_grid[candidate_position.y][candidate_position.x] == ' ':
+                    if DEBUG:
+                        print(f"Found a space at {candidate_position}, wrapping around to the other side of the map at ", end="")
+
+                    # If its a space, we must wrap around to the other side of the map
+                    if flat_map_data.direction == '>':
+                        candidate_position = Point(0, candidate_position.y)
+                    elif flat_map_data.direction == '<':
+                        candidate_position = Point(flat_map_data.width - 1, candidate_position.y)
+                    elif flat_map_data.direction == '^':
+                        candidate_position = Point(candidate_position.x, flat_map_data.height - 1)
+                    elif flat_map_data.direction == 'v':
+                        candidate_position = Point(candidate_position.x, 0)
+
+                    # If the new candidate position is a space, we need to update the current position
+                    # until we hit a non-space character
+                    while flat_map_data.map_grid[candidate_position.y][candidate_position.x] == ' ':
+                        candidate_position = candidate_position + MOVE[flat_map_data.direction]
+                        if flat_map_data.direction == '>':
+                            candidate_position = Point(candidate_position.x + 1, candidate_position.y)
+                        elif flat_map_data.direction == '<':
+                            candidate_position = Point(candidate_position.x - 1, candidate_position.y)
+                        elif flat_map_data.direction == '^':
+                            candidate_position = Point(candidate_position.x, candidate_position.y - 1)
+                        elif flat_map_data.direction == 'v':
+                            candidate_position = Point(candidate_position.x, candidate_position.y + 1)
+
+
+
+                # If the new candiate position is a wall (#) we do not update the current position and break
+                # out of the loop. If its a ".", we update the current position
+                if flat_map_data.map_grid[candidate_position.y][candidate_position.x] == '#':
+                    if DEBUG:
+                        print(f"{Colours.BOLD.value}{Colours.RED.value}Hit a wall at {candidate_position}{Colours.NORMAL.value}")
+                    break
+                else:
+                    # Update the current position
+                    flat_map_data.current_position = candidate_position
+
+                    # Store the current position in the path
+                    flat_map_data.path_points[flat_map_data.current_position] = flat_map_data.direction
+            
+                if DEBUG:
+                    print(f"Current Direction: {flat_map_data.direction}, current position: {flat_map_data.current_position}")
+        else:
+            if DEBUG:
+                print(f"{Colours.BOLD.value}{Colours.GREEN.value}Instruction {i}: {inst}{Colours.NORMAL.value}")
+
+            # Turn the direction
+            if inst == 'R':
+                # Add or subtract 1 from the direction value, then mod 4 to wrap around the list                
+                flat_map_data.direction = Direction[(return_direction_value(flat_map_data.direction) + 1) % 4]
+            else:
+                flat_map_data.direction = Direction[(return_direction_value(flat_map_data.direction) - 1) % 4]  
+
+    print(f"Final score: {flat_map_data.score()}")       
+    
+    print(flat_map_data)
     return 
 
 
@@ -154,105 +282,13 @@ def main():
         # Split the map data into a list of lines
         map_data = map_data.splitlines()
 
-        map_stuff = Map(map_data)
+        flat_map_instance = Map(map_data)
 
         # Instantiate the instructions class
         instructions = Instructions(instructions)
 
-        # Loop through the instructions and print them out
-        for i in range(0, len(instructions.instruction_list)):
-
-            inst = instructions.next_instruction()
-
-            print(f"\n{Colours.MAGENTA.value}Current Direction: {map_stuff.direction}, current position: {map_stuff.current_position}{Colours.NORMAL.value}")
-
-            if inst.isdigit():
-                print(f"{Colours.BOLD.value}{Colours.RED.value}Instruction {i}: {inst}{Colours.NORMAL.value}")
-                for j in range(0, int(inst)):
-                    # Find the next candidate position
-                    candidate_position = map_stuff.current_position + MOVE[map_stuff.direction]
-
-                    # Check if we are off the map
-                    if candidate_position.x >= map_stuff.width:
-                        candidate_position.x = 0
-                    elif candidate_position.x < 0:
-                        candidate_position.x = map_stuff.width - 1
-                    elif candidate_position.y >= map_stuff.height:
-                        candidate_position.y = 0
-                    elif candidate_position.y < 0:
-                        candidate_position.y = map_stuff.height - 1
-                        
-                    # Check if the candidate position is a space
-                    if map_stuff.map_grid[candidate_position.y][candidate_position.x] == ' ':
-                        print(f"Found a space at {candidate_position}, wrapping around to the other side of the map at ", end="")
-
-                        # If its a space, we must wrap around to the other side of the map
-                        if map_stuff.direction == '>':
-                            candidate_position.x = 0
-                        elif map_stuff.direction == '<':
-                            candidate_position.x = map_stuff.width - 1
-                        elif map_stuff.direction == '^':
-                            candidate_position.y = map_stuff.height - 1
-                        elif map_stuff.direction == 'v':
-                            candidate_position.y = 0
-
-                        print(candidate_position)
-
-                        # If the new candidate position is a space, we need to update the current position
-                        # until we hit a non-space character
-                        while map_stuff.map_grid[candidate_position.y][candidate_position.x] == ' ':
-                            candidate_position = candidate_position + MOVE[map_stuff.direction]
-                            print(f"Moved to {candidate_position},")
-                            if map_stuff.direction == '>':
-                                candidate_position.x += 1
-                                print(f"> - Updating to {candidate_position}")
-                            elif map_stuff.direction == '<':
-                                candidate_position.x -= 1
-                                print(f"< - Updating to {candidate_position}")
-                            elif map_stuff.direction == '^':
-                                candidate_position.y -= 1
-                                print(f"^ - Updating to {candidate_position}")
-                            elif map_stuff.direction == 'v':
-                                candidate_position.y += 1
-                                print(f"V - Updating to {candidate_position}")
-
-
-                    # If the new candiate position is a wall (#) we do not update the current position and break
-                    # out of the loop. If its a ".", we update the current position
-                    if map_stuff.map_grid[candidate_position.y][candidate_position.x] == '#':
-                        print(f"{Colours.BOLD.value}{Colours.RED.value}Hit a wall at {candidate_position}{Colours.NORMAL.value}")
-                        break
-                    else:
-                        map_stuff.current_position = candidate_position
-                
-
-                    print(f"Current Direction: {map_stuff.direction}, current position: {map_stuff.current_position}")
-            else:
-                print(f"{Colours.BOLD.value}{Colours.GREEN.value}Instruction {i}: {inst}{Colours.NORMAL.value}")
-
-                # Turn the direction
-                if inst == 'R':
-                    map_stuff.direction = Direction[(return_direction_value(map_stuff.direction) + 1) % 4]
-                else:
-                    map_stuff.direction = Direction[(return_direction_value(map_stuff.direction) - 1) % 4]
-
-                
-        # print the final position, which is +1 on the x and y coordinates
-        final_position = map_stuff.current_position + Point(1, 1)
-        print(f"Final position: {final_position}")
-
-        # Final score is row * 1000 + column * 4
-        final_score = final_position.y * 1000 + final_position.x * 4
-
-        # add a direction value to the final score. 0 = >, 1 = v, 2 = <, 3 = ^
-        final_score += return_direction_value(map_stuff.direction)
-        
-        print(f"Final score: {final_score}")       
+        part1(flat_map_instance, instructions)
             
-
-
-
-
 
 if __name__ == "__main__":
     main()
